@@ -1,0 +1,22 @@
+{% style %}
+  {{ settings.type_body_font | font_face: font_display: 'swap' }}
+  {{ settings.type_body_font | font_modify: 'weight', '600' | font_face: font_display: 'swap' }}
+  {{ settings.type_heading_font | font_face: font_display: 'swap' }}
+
+  :root {
+    --font-body: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    --font-heading: {{ settings.type_heading_font.family }}, {{ settings.type_heading_font.fallback_families }};
+    --page-width: {{ settings.max_page_width }}px;
+    --page-margin: {{ settings.min_page_margin }}px;
+    --color-background: {{ settings.background_color }};
+    --color-surface: {{ settings.surface_color }};
+    --color-foreground: {{ settings.foreground_color }};
+    --color-muted: {{ settings.muted_color }};
+    --color-accent: {{ settings.accent_color }};
+    --color-accent-contrast: {{ settings.accent_contrast_color }};
+    --color-border: {{ settings.border_color }};
+    --radius: {{ settings.card_corner_radius }}px;
+    --radius-button: {{ settings.button_corner_radius }}px;
+    --shadow-card: 0 18px 50px rgba(27, 25, 22, 0.08);
+  }
+{% endstyle %}

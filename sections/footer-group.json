@@ -1,0 +1,19 @@
+{
+  "type": "footer",
+  "name": "Footer group",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "settings": {
+        "tagline": "Original graphic tees for the things you’re into. Printed on demand, worn on repeat.",
+        "menu_heading": "Shop",
+        "menu": "footer",
+        "policy_heading": "Help",
+        "newsletter_heading": "Get first dibs",
+        "newsletter_text": "Fresh drops, limited runs, and good things for your inbox.",
+        "show_payment_icons": true
+      }
+    }
+  },
+  "order": ["footer"]
+}

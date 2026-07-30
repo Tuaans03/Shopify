@@ -1,0 +1,71 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "blocks": {
+        "fact_1": { "type": "fact", "settings": { "text": "Printed on demand" } },
+        "fact_2": { "type": "fact", "settings": { "text": "Secure checkout" } },
+        "fact_3": { "type": "fact", "settings": { "text": "Ships across the U.S." } }
+      },
+      "block_order": ["fact_1", "fact_2", "fact_3"],
+      "settings": {
+        "eyebrow": "Original art. Premium tees.",
+        "heading": "Wear what you’re into.",
+        "text": "Conversation-starting graphic tees, made on demand and built for everyday rotation.",
+        "primary_label": "Shop best sellers",
+        "secondary_label": "Explore collections"
+      }
+    },
+    "collections": {
+      "type": "collection-showcase",
+      "blocks": {
+        "collection_1": { "type": "collection", "settings": {} },
+        "collection_2": { "type": "collection", "settings": {} },
+        "collection_3": { "type": "collection", "settings": {} },
+        "collection_4": { "type": "collection", "settings": {} }
+      },
+      "block_order": ["collection_1", "collection_2", "collection_3", "collection_4"],
+      "settings": { "eyebrow": "Find your thing", "heading": "Shop by vibe", "text": "Fresh artwork for every kind of personality, obsession, and everyday mood." }
+    },
+    "featured": {
+      "type": "featured-collection",
+      "settings": { "eyebrow": "Most wanted", "heading": "Current favorites", "text": "The designs customers keep coming back for.", "products_to_show": 4, "show_vendor": false, "compact": false }
+    },
+    "story": {
+      "type": "image-with-text",
+      "settings": {
+        "eyebrow": "Why made on demand",
+        "heading": "Made for you. Never mass produced.",
+        "text": "<p>Your tee is printed after you order, helping avoid unnecessary inventory while making more room for original ideas.</p><p>Choose the artwork, fit, and color that feel like you.</p>",
+        "button_label": "Find your tee"
+      }
+    },
+    "new_drop": {
+      "type": "featured-collection",
+      "settings": { "eyebrow": "Just landed", "heading": "New in the rotation", "text": "Fresh art, ready for its first outing.", "products_to_show": 4, "show_vendor": false, "compact": true }
+    },
+    "values": {
+      "type": "value-props",
+      "blocks": {
+        "value_1": { "type": "item", "settings": { "heading": "Printed for you", "text": "Your tee is produced after checkout rather than sitting in mass inventory." } },
+        "value_2": { "type": "item", "settings": { "heading": "Made to live in", "text": "Easy silhouettes and expressive graphics for your everyday rotation." } },
+        "value_3": { "type": "item", "settings": { "heading": "Checkout with confidence", "text": "Your payment is processed securely through Shopify checkout." } }
+      },
+      "block_order": ["value_1", "value_2", "value_3"],
+      "settings": {}
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "faq_1": { "type": "question", "settings": { "question": "How do I choose my size?", "answer": "<p>Use the size information on the product page and compare it with a tee you already love. If you prefer a more relaxed look, consider sizing up.</p>" } },
+        "faq_2": { "type": "question", "settings": { "question": "When is my tee printed?", "answer": "<p>Our products are made on demand, so production begins after your order is placed. The current delivery estimate is shown during checkout.</p>" } },
+        "faq_3": { "type": "question", "settings": { "question": "How should I care for a printed tee?", "answer": "<p>For the longest print life, wash inside out with similar colors on a cool cycle and tumble dry low. Avoid ironing directly over the artwork.</p>" } },
+        "faq_4": { "type": "question", "settings": { "question": "Can I personalize a design?", "answer": "<p>If personalization is available, you’ll see a field on the product page. Enter the details exactly as you want them printed before adding the item to your cart.</p>" } }
+      },
+      "block_order": ["faq_1", "faq_2", "faq_3", "faq_4"],
+      "settings": { "eyebrow": "Good to know", "heading": "Questions, answered.", "text": "The essentials before your new favorite tee lands in your rotation." }
+    },
+    "newsletter": { "type": "newsletter", "settings": { "eyebrow": "No spam. Just good shirts.", "heading": "Get the next drop first.", "text": "Join for new art, limited collections, and the occasional inbox-only offer.", "button_label": "Sign me up" } }
+  },
+  "order": ["hero", "collections", "featured", "story", "new_drop", "values", "faq", "newsletter"]
+}

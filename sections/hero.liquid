@@ -1,0 +1,71 @@
+<section class="hero full-width">
+  <div class="hero__media">
+    {% if section.settings.image != blank %}
+      {{ section.settings.image
+        | image_url: width: 2400
+        | image_tag:
+          preload: true,
+          widths: '750, 1100, 1500, 2000, 2400',
+          sizes: '100vw',
+          alt: section.settings.image.alt
+      }}
+    {% else %}
+      <img src="{{ 'sena-hero.jpg' | asset_url }}" width="2400" height="1350" alt="Friends wearing original graphic T-shirts" fetchpriority="high">
+    {% endif %}
+  </div>
+
+  <div class="hero__inner page-width">
+    <div class="hero__content">
+      {% if section.settings.eyebrow != blank %}<p class="hero__eyebrow">{{ section.settings.eyebrow | escape }}</p>{% endif %}
+      <h1 class="hero__title">{{ section.settings.heading | escape }}</h1>
+      {% if section.settings.text != blank %}<p class="hero__text">{{ section.settings.text | escape }}</p>{% endif %}
+      <div class="hero__actions">
+        {% if section.settings.primary_label != blank %}
+          <a class="button button--accent" href="{{ section.settings.primary_link | default: routes.all_products_collection_url }}">{{ section.settings.primary_label | escape }}</a>
+        {% endif %}
+        {% if section.settings.secondary_label != blank %}
+          <a class="button button--outline" href="{{ section.settings.secondary_link | default: routes.collections_url }}">{{ section.settings.secondary_label | escape }}</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="hero__facts">
+    {% for block in section.blocks %}<span class="hero__fact" {{ block.shopify_attributes }}>{{ block.settings.text | escape }}</span>{% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero",
+  "tag": "section",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Hero image" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Original art. Premium tees." },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Wear what you’re into." },
+    { "type": "textarea", "id": "text", "label": "Text", "default": "Conversation-starting graphic tees, made on demand and built for everyday rotation." },
+    { "type": "text", "id": "primary_label", "label": "Primary button label", "default": "Shop best sellers" },
+    { "type": "url", "id": "primary_link", "label": "Primary button link" },
+    { "type": "text", "id": "secondary_label", "label": "Secondary button label", "default": "Explore collections" },
+    { "type": "url", "id": "secondary_link", "label": "Secondary button link" }
+  ],
+  "blocks": [
+    {
+      "type": "fact",
+      "name": "Quick fact",
+      "settings": [{ "type": "text", "id": "text", "label": "Text", "default": "Printed on demand" }]
+    }
+  ],
+  "max_blocks": 3,
+  "presets": [
+    {
+      "name": "Hero",
+      "blocks": [
+        { "type": "fact", "settings": { "text": "Printed on demand" } },
+        { "type": "fact", "settings": { "text": "Secure checkout" } },
+        { "type": "fact", "settings": { "text": "Ships across the U.S." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

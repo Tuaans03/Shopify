@@ -1,0 +1,44 @@
+<section class="search-page page-width">
+  <p class="section-eyebrow">Discover</p>
+  <h1 class="page-title">Search</h1>
+
+  <form class="search-form search-page__form" action="{{ routes.search_url }}" method="get" role="search">
+    <label class="visually-hidden" for="SearchInput-{{ section.id }}">Search products and content</label>
+    <input id="SearchInput-{{ section.id }}" type="search" name="q" value="{{ search.terms | escape }}" placeholder="Try retro, outdoors, or cat" required>
+    <button class="button button--accent" type="submit">Search</button>
+  </form>
+
+  {% if search.performed %}
+    <div class="section-header">
+      <div class="section-header__copy">
+        <h2>{{ search.results_count }} {% if search.results_count == 1 %}result{% else %}results{% endif %} for “{{ search.terms | escape }}”</h2>
+      </div>
+    </div>
+
+    {% paginate search.results by section.settings.results_per_page %}
+      <div class="search-results">
+        {% for result in search.results %}
+          {% if result.object_type == 'product' %}
+            {% render 'product-card', product: result %}
+          {% else %}
+            <article class="search-result--content">
+              <p class="section-eyebrow">{{ result.object_type | capitalize }}</p>
+              <h2><a href="{{ result.url }}">{{ result.title | escape }}</a></h2>
+              <p class="section-subtitle">{{ result.content | strip_html | truncatewords: 24 }}</p>
+            </article>
+          {% endif %}
+        {% else %}
+          <div class="empty-state">No matches yet. Try a broader word or browse all tees.</div>
+        {% endfor %}
+      </div>
+      {% if paginate.pages > 1 %}<div class="pagination">{{ paginate | default_pagination }}</div>{% endif %}
+    {% endpaginate %}
+  {% endif %}
+</section>
+
+{% schema %}
+{
+  "name": "Search results",
+  "settings": [{ "type": "range", "id": "results_per_page", "min": 12, "max": 48, "step": 4, "label": "Results per page", "default": 24 }]
+}
+{% endschema %}

@@ -1,0 +1,10 @@
+{
+  "sections": {
+    "main": {
+      "type": "collection",
+      "settings": { "show_collection_image": true, "enable_filtering": true, "enable_sorting": true, "show_vendor": false, "products_per_page": 24 }
+    },
+    "newsletter": { "type": "newsletter", "settings": { "eyebrow": "Fresh art, first", "heading": "Get the next drop first.", "text": "Join for new art, limited collections, and the occasional inbox-only offer.", "button_label": "Sign me up" } }
+  },
+  "order": ["main", "newsletter"]
+}

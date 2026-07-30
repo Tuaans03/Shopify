@@ -1,0 +1,73 @@
+{% assign brand_name = settings.brand_name | default: shop.name %}
+<footer class="site-footer">
+  <div class="footer-main page-width">
+    <div class="footer-brand">
+      <a class="footer-brand__logo" href="{{ routes.root_url }}">{{ brand_name | escape }}<span class="site-logo__dot">.</span></a>
+      <p class="footer-brand__text">{{ section.settings.tagline | escape }}</p>
+      <div class="footer-social">
+        {% if settings.social_instagram != blank %}<a href="{{ settings.social_instagram }}" rel="noopener" target="_blank">Instagram</a>{% endif %}
+        {% if settings.social_tiktok != blank %}<a href="{{ settings.social_tiktok }}" rel="noopener" target="_blank">TikTok</a>{% endif %}
+        {% if settings.social_facebook != blank %}<a href="{{ settings.social_facebook }}" rel="noopener" target="_blank">Facebook</a>{% endif %}
+      </div>
+    </div>
+
+    <div>
+      <h2 class="footer-heading">{{ section.settings.menu_heading | escape }}</h2>
+      <nav class="footer-links" aria-label="{{ section.settings.menu_heading | escape }}">
+        {% for link in section.settings.menu.links %}<a href="{{ link.url }}">{{ link.title | escape }}</a>{% endfor %}
+      </nav>
+    </div>
+
+    <div>
+      <h2 class="footer-heading">{{ section.settings.policy_heading | escape }}</h2>
+      <nav class="footer-links" aria-label="{{ section.settings.policy_heading | escape }}">
+        {% for link in section.settings.policy_menu.links %}<a href="{{ link.url }}">{{ link.title | escape }}</a>{% endfor %}
+        {% if section.settings.policy_menu == blank %}
+          {% if shop.refund_policy != blank %}<a href="{{ shop.refund_policy.url }}">{{ shop.refund_policy.title }}</a>{% endif %}
+          {% if shop.shipping_policy != blank %}<a href="{{ shop.shipping_policy.url }}">{{ shop.shipping_policy.title }}</a>{% endif %}
+          {% if shop.privacy_policy != blank %}<a href="{{ shop.privacy_policy.url }}">{{ shop.privacy_policy.title }}</a>{% endif %}
+          {% if shop.terms_of_service != blank %}<a href="{{ shop.terms_of_service.url }}">{{ shop.terms_of_service.title }}</a>{% endif %}
+        {% endif %}
+      </nav>
+    </div>
+
+    <div class="footer-newsletter">
+      <h2 class="footer-heading">{{ section.settings.newsletter_heading | escape }}</h2>
+      <p>{{ section.settings.newsletter_text | escape }}</p>
+      {% form 'customer', class: 'newsletter-form' %}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        <label class="visually-hidden" for="FooterEmail-{{ section.id }}">Email address</label>
+        <input id="FooterEmail-{{ section.id }}" type="email" name="contact[email]" value="{{ form.email }}" autocomplete="email" placeholder="Email address" required>
+        <button class="button" type="submit">Join</button>
+        {% if form.posted_successfully? %}<p class="form-message">Thanks — you're on the list.</p>{% endif %}
+        {{ form.errors | default_errors }}
+      {% endform %}
+    </div>
+  </div>
+
+  <div class="footer-bottom page-width">
+    <p>&copy; {{ 'now' | date: '%Y' }} {{ brand_name | escape }}. All rights reserved.</p>
+    {% if section.settings.show_payment_icons %}
+      <div class="footer-payment" aria-label="Accepted payment methods">
+        {% for type in shop.enabled_payment_types %}{{ type | payment_type_svg_tag }}{% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    { "type": "text", "id": "tagline", "label": "Brand statement", "default": "Original graphic tees for the things you’re into. Printed on demand, worn on repeat." },
+    { "type": "text", "id": "menu_heading", "label": "Menu heading", "default": "Shop" },
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "footer" },
+    { "type": "text", "id": "policy_heading", "label": "Policy heading", "default": "Help" },
+    { "type": "link_list", "id": "policy_menu", "label": "Policy menu" },
+    { "type": "text", "id": "newsletter_heading", "label": "Newsletter heading", "default": "Get first dibs" },
+    { "type": "textarea", "id": "newsletter_text", "label": "Newsletter text", "default": "Fresh drops, limited runs, and good things for your inbox." },
+    { "type": "checkbox", "id": "show_payment_icons", "label": "Show payment icons", "default": true }
+  ],
+  "enabled_on": { "groups": ["footer"] }
+}
+{% endschema %}

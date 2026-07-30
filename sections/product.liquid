@@ -1,0 +1,161 @@
+{% liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_form_id = 'ProductForm-' | append: section.id
+  assign price_attributes = 'data-product-price="' | append: section.id | append: '" data-currency="' | append: cart.currency.iso_code | append: '"'
+%}
+
+<section class="product-page page-width" data-section-id="{{ section.id }}">
+  <div class="product-gallery" aria-label="Product media gallery">
+    {% for media in product.media %}
+      <div class="product-media" id="Media-{{ section.id }}-{{ media.id }}">
+        {% case media.media_type %}
+          {% when 'image' %}
+            {{ media.preview_image
+              | image_url: width: 1600
+              | image_tag:
+                loading: 'lazy',
+                widths: '480, 720, 960, 1200, 1600',
+                sizes: '(min-width: 820px) 35vw, 88vw',
+                alt: media.alt
+            }}
+          {% when 'external_video' %}
+            {{ media | external_video_tag }}
+          {% when 'video' %}
+            {{ media | media_tag: controls: true }}
+          {% when 'model' %}
+            {{ media | model_viewer_tag: reveal: 'interaction', toggleable: true }}
+        {% endcase %}
+      </div>
+    {% else %}
+      <div class="product-media">{{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="product-info">
+    <nav class="product-breadcrumbs" aria-label="Breadcrumb">
+      <a href="{{ routes.root_url }}">Home</a> / 
+      {% if collection %}<a href="{{ collection.url }}">{{ collection.title | escape }}</a> / {% endif %}
+      <span>{{ product.title | escape }}</span>
+    </nav>
+
+    {% if section.settings.show_vendor and product.vendor != blank %}<p class="product-vendor">{{ product.vendor | escape }}</p>{% endif %}
+    <h1 class="product-title">{{ product.title | escape }}</h1>
+    {% render 'price', target: current_variant, attributes: price_attributes %}
+    <p class="product-tax-note">Taxes and shipping calculated at checkout.</p>
+
+    {% if section.settings.show_short_description and product.description != blank %}
+      <div class="product-short-description">{{ product.description | strip_html | truncatewords: 28 }}</div>
+    {% endif %}
+
+    {% form 'product', product, id: product_form_id, class: 'product-form' %}
+      <input type="hidden" name="id" value="{{ current_variant.id }}">
+
+      {% unless product.has_only_default_variant %}
+        <div data-variant-selects data-section="{{ section.id }}" data-product-form="{{ product_form_id }}">
+          {% for option in product.options_with_values %}
+            <div class="product-option">
+              <label for="Option-{{ section.id }}-{{ option.position }}">{{ option.name | escape }}</label>
+              <select id="Option-{{ section.id }}-{{ option.position }}" data-option-select>
+                {% for value in option.values %}
+                  <option value="{{ value | escape }}"{% if option.selected_value == value %} selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          {% endfor %}
+          <script type="application/json" data-variants-json>{{ product.variants | json }}</script>
+        </div>
+      {% endunless %}
+
+      {% if section.settings.enable_personalization %}
+        <div class="product-option">
+          <label for="Personalization-{{ section.id }}">{{ section.settings.personalization_label | escape }}</label>
+          <input id="Personalization-{{ section.id }}" type="text" name="properties[{{ section.settings.personalization_label | escape }}]" maxlength="{{ section.settings.personalization_max_characters }}" placeholder="{{ section.settings.personalization_placeholder | escape }}">
+        </div>
+      {% endif %}
+
+      <div class="product-form__row">
+        <div>
+          <label class="field-label" for="Quantity-{{ section.id }}">Quantity</label>
+          <div class="quantity" data-quantity>
+            <button type="button" data-quantity-button="decrease" aria-label="Decrease quantity">−</button>
+            <input id="Quantity-{{ section.id }}" type="number" name="quantity" min="1" step="1" value="1">
+            <button type="button" data-quantity-button="increase" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+        <div class="product-buttons">
+          <span class="field-label">&nbsp;</span>
+          <button class="button button--accent button--full" type="submit" name="add" data-add-to-cart{% unless current_variant.available %} disabled{% endunless %}>
+            <span data-add-to-cart-text>{% if current_variant.available %}Add to cart{% else %}Sold out{% endif %}</span>
+          </button>
+        </div>
+      </div>
+
+      {% if section.settings.show_dynamic_checkout %}
+        <div class="product-buttons">{{ form | payment_button }}</div>
+      {% endif %}
+    {% endform %}
+
+    <div class="product-assurance" aria-label="Purchase information">
+      <div class="product-assurance__item">Made on demand</div>
+      <div class="product-assurance__item">Secure checkout</div>
+      <div class="product-assurance__item">U.S. delivery</div>
+    </div>
+
+    <div class="product-details">
+      <details open>
+        <summary>Product details</summary>
+        <div class="product-details__content rte">{{ product.description }}</div>
+      </details>
+      {% if section.settings.size_guide != blank %}
+        <details>
+          <summary>Size guide</summary>
+          <div class="product-details__content rte">{{ section.settings.size_guide.content }}</div>
+        </details>
+      {% endif %}
+      <details>
+        <summary>Production & delivery</summary>
+        <div class="product-details__content rte">{{ section.settings.shipping_text }}</div>
+      </details>
+      <details>
+        <summary>Returns</summary>
+        <div class="product-details__content rte">{{ section.settings.returns_text }}</div>
+      </details>
+    </div>
+
+    {% for block in section.blocks %}
+      {% case block.type %}
+        {% when '@app' %}{% render block %}
+        {% when 'custom_liquid' %}<div class="rte" {{ block.shopify_attributes }}>{{ block.settings.custom_liquid }}</div>
+      {% endcase %}
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product information",
+  "settings": [
+    { "type": "checkbox", "id": "show_vendor", "label": "Show vendor", "default": false },
+    { "type": "checkbox", "id": "show_short_description", "label": "Show short description", "default": true },
+    { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show dynamic checkout button", "default": true },
+    { "type": "header", "content": "Personalization" },
+    { "type": "checkbox", "id": "enable_personalization", "label": "Enable personalization field", "default": false },
+    { "type": "text", "id": "personalization_label", "label": "Field label", "default": "Personalization" },
+    { "type": "text", "id": "personalization_placeholder", "label": "Placeholder", "default": "Enter text exactly as it should print" },
+    { "type": "range", "id": "personalization_max_characters", "min": 10, "max": 100, "step": 5, "label": "Maximum characters", "default": 40 },
+    { "type": "header", "content": "Product details" },
+    { "type": "page", "id": "size_guide", "label": "Size guide page" },
+    { "type": "richtext", "id": "shipping_text", "label": "Production and delivery text", "default": "<p>This item is made on demand after your order is placed. Your current estimated delivery window will be shown at checkout.</p>" },
+    { "type": "richtext", "id": "returns_text", "label": "Returns text", "default": "<p>Please review the store’s return policy before ordering. Personalized items may have different return eligibility.</p>" }
+  ],
+  "blocks": [
+    { "type": "@app" },
+    {
+      "type": "custom_liquid",
+      "name": "Custom Liquid",
+      "settings": [{ "type": "liquid", "id": "custom_liquid", "label": "Custom Liquid" }]
+    }
+  ],
+  "disabled_on": { "groups": ["header", "footer"] }
+}
+{% endschema %}

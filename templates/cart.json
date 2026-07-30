@@ -1,0 +1,7 @@
+{
+  "sections": {
+    "main": { "type": "cart", "settings": {} },
+    "featured": { "type": "featured-collection", "settings": { "eyebrow": "Keep exploring", "heading": "More tees to know", "text": "Fresh artwork for your rotation.", "products_to_show": 4, "show_vendor": false, "compact": true } }
+  },
+  "order": ["main", "featured"]
+}

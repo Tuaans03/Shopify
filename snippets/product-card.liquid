@@ -1,0 +1,69 @@
+{% liquid
+  assign card_product = product
+  assign secondary_image = card_product.images[1]
+  assign selected_variant = card_product.selected_or_first_available_variant
+  assign on_sale = false
+  if card_product.compare_at_price_max > card_product.price
+    assign on_sale = true
+  endif
+%}
+
+<article class="product-card">
+  <div class="product-card__media">
+    <a href="{{ card_product.url | within: collection }}" aria-label="{{ card_product.title | escape }}">
+      {% if card_product.featured_image %}
+        {{ card_product.featured_image
+          | image_url: width: 900
+          | image_tag:
+            loading: 'lazy',
+            widths: '240, 360, 480, 720, 900',
+            sizes: '(min-width: 1100px) 25vw, (min-width: 560px) 33vw, 50vw',
+            class: 'product-card__image',
+            alt: card_product.featured_image.alt
+        }}
+        {% if secondary_image %}
+          {{ secondary_image
+            | image_url: width: 900
+            | image_tag:
+              loading: 'lazy',
+              widths: '360, 480, 720, 900',
+              sizes: '(min-width: 1100px) 25vw, (min-width: 560px) 33vw, 50vw',
+              class: 'product-card__image product-card__image--secondary',
+              alt: secondary_image.alt
+          }}
+        {% endif %}
+      {% else %}
+        {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {% endif %}
+    </a>
+
+    <div class="product-card__badges">
+      {% unless card_product.available %}<span class="badge">Sold out</span>{% endunless %}
+      {% if on_sale %}<span class="badge badge--sale">Sale</span>{% endif %}
+    </div>
+
+    <div class="product-card__quick">
+      {% if card_product.available and card_product.has_only_default_variant %}
+        {% form 'product', card_product %}
+          <input type="hidden" name="id" value="{{ selected_variant.id }}">
+          <input type="hidden" name="quantity" value="1">
+          <button class="button" type="submit">Quick add</button>
+        {% endform %}
+      {% else %}
+        <a class="button" href="{{ card_product.url | within: collection }}">
+          {% if card_product.available %}Choose options{% else %}View details{% endif %}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="product-card__content">
+    {% if show_vendor and card_product.vendor != blank %}
+      <div class="product-card__vendor">{{ card_product.vendor }}</div>
+    {% endif %}
+    <h3 class="product-card__title">
+      <a href="{{ card_product.url | within: collection }}">{{ card_product.title | escape }}</a>
+    </h3>
+    {% render 'price', product: card_product %}
+  </div>
+</article>

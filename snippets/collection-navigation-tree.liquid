@@ -1,0 +1,74 @@
+{% comment %}
+  Renders the store's real collection hierarchy for the header.
+  Shopify collections are flat, so the blank collections are grouped beneath
+  the T-Shirts collection by their stable handles.
+
+  Accepts:
+  - mobile: when true, uses mobile navigation classes
+  - limit_count: maximum number of Shopify collections to inspect
+{% endcomment %}
+
+{% liquid
+  assign gildan_collection = collections['gildan']
+  assign bella_canvas_collection = collections['bella-canvas']
+%}
+
+{% for menu_collection in collections limit: limit_count %}
+  {% unless menu_collection.handle == 'gildan' or menu_collection.handle == 'bella-canvas' %}
+    {% if menu_collection.handle == 't-shirts' %}
+      {% if mobile %}
+        <details class="collection-tree collection-tree--mobile">
+          <summary class="collection-tree__parent"><span>{{ menu_collection.title | escape }}</span></summary>
+          <div class="collection-tree__children" aria-label="T-Shirts blanks">
+            <a href="{{ menu_collection.url }}"{% if collection.handle == menu_collection.handle %} aria-current="page"{% endif %}>
+              <span>Shop all {{ menu_collection.title | escape }}</span>
+            </a>
+            {% if gildan_collection != blank %}
+              <a href="{{ gildan_collection.url }}"{% if collection.handle == gildan_collection.handle %} aria-current="page"{% endif %}>
+                <span>{{ gildan_collection.title | escape }}</span>
+              </a>
+            {% endif %}
+            {% if bella_canvas_collection != blank %}
+              <a href="{{ bella_canvas_collection.url }}"{% if collection.handle == bella_canvas_collection.handle %} aria-current="page"{% endif %}>
+                <span>{{ bella_canvas_collection.title | escape }}</span>
+              </a>
+            {% endif %}
+          </div>
+        </details>
+      {% else %}
+        <div class="collection-tree">
+          <a
+            class="collection-tree__parent"
+            href="{{ menu_collection.url }}"
+            {% if collection.handle == menu_collection.handle %}aria-current="page"{% endif %}
+          >
+            <span>{{ menu_collection.title | escape }}</span>
+            <small>{{ menu_collection.products_count }}</small>
+          </a>
+
+          {% if gildan_collection != blank or bella_canvas_collection != blank %}
+            <div class="collection-tree__children" aria-label="T-Shirts blanks">
+              {% if gildan_collection != blank %}
+                <a href="{{ gildan_collection.url }}"{% if collection.handle == gildan_collection.handle %} aria-current="page"{% endif %}>
+                  <span>{{ gildan_collection.title | escape }}</span>
+                  <small>{{ gildan_collection.products_count }}</small>
+                </a>
+              {% endif %}
+              {% if bella_canvas_collection != blank %}
+                <a href="{{ bella_canvas_collection.url }}"{% if collection.handle == bella_canvas_collection.handle %} aria-current="page"{% endif %}>
+                  <span>{{ bella_canvas_collection.title | escape }}</span>
+                  <small>{{ bella_canvas_collection.products_count }}</small>
+                </a>
+              {% endif %}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+    {% else %}
+      <a href="{{ menu_collection.url }}"{% if collection.handle == menu_collection.handle %} aria-current="page"{% endif %}>
+        <span>{{ menu_collection.title | escape }}</span>
+        {% unless mobile %}<small>{{ menu_collection.products_count }}</small>{% endunless %}
+      </a>
+    {% endif %}
+  {% endunless %}
+{% endfor %}

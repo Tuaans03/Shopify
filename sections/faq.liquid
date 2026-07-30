@@ -1,0 +1,49 @@
+<section class="section">
+  <div class="page-width faq">
+    <div>
+      {% if section.settings.eyebrow != blank %}<p class="section-eyebrow">{{ section.settings.eyebrow | escape }}</p>{% endif %}
+      <h2 class="section-title">{{ section.settings.heading | escape }}</h2>
+      {% if section.settings.text != blank %}<p class="section-subtitle">{{ section.settings.text | escape }}</p>{% endif %}
+    </div>
+    <div class="faq__items">
+      {% for block in section.blocks %}
+        <details class="faq-item" {{ block.shopify_attributes }}{% if forloop.first %} open{% endif %}>
+          <summary>{{ block.settings.question | escape }}</summary>
+          <div class="faq-item__answer rte">{{ block.settings.answer }}</div>
+        </details>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "FAQ",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Good to know" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Questions, answered." },
+    { "type": "textarea", "id": "text", "label": "Text", "default": "The essentials before your new favorite tee lands in your rotation." }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        { "type": "text", "id": "question", "label": "Question", "default": "How do I choose my size?" },
+        { "type": "richtext", "id": "answer", "label": "Answer", "default": "<p>Use the size information on the product page and compare it with a tee you already love. If you prefer a more relaxed look, consider sizing up.</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ",
+      "blocks": [
+        { "type": "question", "settings": { "question": "How do I choose my size?", "answer": "<p>Use the size information on the product page and compare it with a tee you already love. If you prefer a more relaxed look, consider sizing up.</p>" } },
+        { "type": "question", "settings": { "question": "When is my tee printed?", "answer": "<p>Our products are made on demand, so production begins after your order is placed. The current delivery estimate is shown during checkout.</p>" } },
+        { "type": "question", "settings": { "question": "How should I care for a printed tee?", "answer": "<p>For the longest print life, wash inside out with similar colors on a cool cycle and tumble dry low. Avoid ironing directly over the artwork.</p>" } },
+        { "type": "question", "settings": { "question": "Can I personalize a design?", "answer": "<p>If personalization is available, you’ll see a field on the product page. Enter the details exactly as you want them printed before adding the item to your cart.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

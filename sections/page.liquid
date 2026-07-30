@@ -1,0 +1,11 @@
+<section class="page-template page-width">
+  <div class="page-template__inner">
+    <p class="section-eyebrow">{{ settings.brand_name | default: shop.name | escape }}</p>
+    <h1 class="page-title">{{ page.title | escape }}</h1>
+    <div class="rte">{{ page.content }}</div>
+  </div>
+</section>
+
+{% schema %}
+{ "name": "Page", "settings": [] }
+{% endschema %}

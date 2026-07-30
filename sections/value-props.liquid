@@ -1,0 +1,38 @@
+<section class="section--tight">
+  <div class="page-width value-grid">
+    {% for block in section.blocks %}
+      <div class="value-item" {{ block.shopify_attributes }}>
+        <div class="value-item__number">0{{ forloop.index }}</div>
+        <h2 class="value-item__title">{{ block.settings.heading | escape }}</h2>
+        <p class="value-item__text">{{ block.settings.text | escape }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Value propositions",
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Value",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Original by design" },
+        { "type": "textarea", "id": "text", "label": "Text", "default": "Artwork made to stand out without looking like everything else in your feed." }
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "presets": [
+    {
+      "name": "Value propositions",
+      "blocks": [
+        { "type": "item", "settings": { "heading": "Printed for you", "text": "Your tee is produced after checkout rather than sitting in mass inventory." } },
+        { "type": "item", "settings": { "heading": "Made to live in", "text": "Easy silhouettes and expressive graphics for your everyday rotation." } },
+        { "type": "item", "settings": { "heading": "Checkout with confidence", "text": "Your payment is processed securely through Shopify checkout." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

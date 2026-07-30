@@ -1,0 +1,32 @@
+<section class="story-section">
+  <div class="story">
+    <div class="story__media">
+      {% if section.settings.image != blank %}
+        {{ section.settings.image | image_url: width: 1800 | image_tag: loading: 'lazy', widths: '750, 1100, 1500, 1800', sizes: '(min-width: 821px) 60vw, 100vw', alt: section.settings.image.alt }}
+      {% else %}
+        <img src="{{ 'sena-hero.jpg' | asset_url }}" width="2400" height="1350" loading="lazy" alt="Friends in original graphic tees">
+      {% endif %}
+    </div>
+    <div class="story__content">
+      {% if section.settings.eyebrow != blank %}<p class="section-eyebrow">{{ section.settings.eyebrow | escape }}</p>{% endif %}
+      <h2 class="story__title">{{ section.settings.heading | escape }}</h2>
+      <div class="story__text rte">{{ section.settings.text }}</div>
+      {% if section.settings.button_label != blank %}<a class="button" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">{{ section.settings.button_label | escape }}</a>{% endif %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Image with text",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Why made on demand" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Made for you. Never mass produced." },
+    { "type": "richtext", "id": "text", "label": "Text", "default": "<p>Your tee is printed after you order, helping avoid unnecessary inventory while making more room for original ideas.</p><p>Choose the artwork, fit, and color that feel like you.</p>" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Find your tee" },
+    { "type": "url", "id": "button_link", "label": "Button link" }
+  ],
+  "presets": [{ "name": "Image with text" }]
+}
+{% endschema %}

@@ -1,0 +1,30 @@
+<section class="section page-width">
+  <div class="section-header">
+    <div class="section-header__copy">
+      <p class="section-eyebrow">Explore</p>
+      <h1 class="section-title">All collections</h1>
+    </div>
+  </div>
+  <div class="collection-grid collection-grid--hierarchy">
+    {% for collection in collections %}
+      {% unless collection.handle == 'gildan' or collection.handle == 'bella-canvas' %}
+        {% assign tile_image = collection.image | default: collection.products.first.featured_image %}
+        <a class="collection-tile" href="{{ collection.url }}">
+          {% if tile_image %}
+            {{ tile_image | image_url: width: 1000 | image_tag: loading: 'lazy', widths: '360, 540, 720, 1000', sizes: '(min-width: 1100px) 50vw, (min-width: 560px) 50vw, 80vw', alt: collection.title }}
+          {% else %}
+            {{ 'collection-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          {% endif %}
+          <div class="collection-tile__content">
+            <h2 class="collection-tile__title">{{ collection.title | escape }}</h2>
+            <p class="collection-tile__count">{{ collection.products_count }} products</p>
+          </div>
+        </a>
+      {% endunless %}
+    {% endfor %}
+  </div>
+</section>
+
+{% schema %}
+{ "name": "Collections grid", "settings": [] }
+{% endschema %}

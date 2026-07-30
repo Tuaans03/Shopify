@@ -1,0 +1,21 @@
+{
+  "sections": {
+    "main": {
+      "type": "product",
+      "settings": {
+        "show_vendor": false,
+        "show_short_description": true,
+        "show_dynamic_checkout": true,
+        "enable_personalization": false,
+        "personalization_label": "Personalization",
+        "personalization_placeholder": "Enter text exactly as it should print",
+        "personalization_max_characters": 40,
+        "shipping_text": "<p>This item is made on demand after your order is placed. Your current estimated delivery window will be shown at checkout.</p>",
+        "returns_text": "<p>Please review the store’s return policy before ordering. Personalized items may have different return eligibility.</p>"
+      }
+    },
+    "recommendations": { "type": "product-recommendations", "settings": { "heading": "You may also like", "products_to_show": 4 } },
+    "newsletter": { "type": "newsletter", "settings": { "eyebrow": "Fresh art, first", "heading": "Get the next drop first.", "text": "Join for new art, limited collections, and the occasional inbox-only offer.", "button_label": "Sign me up" } }
+  },
+  "order": ["main", "recommendations", "newsletter"]
+}

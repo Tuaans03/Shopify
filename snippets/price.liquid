@@ -1,0 +1,16 @@
+{% liquid
+  assign price_target = target | default: product
+  assign compare_at_price = price_target.compare_at_price
+  assign price = price_target.price | default: 1999
+  assign available = price_target.available | default: false
+%}
+
+<div class="price{% unless available %} price--sold-out{% endunless %}"{% if attributes %} {{ attributes }}{% endif %}>
+  {% if price_target.price_varies %}
+    <span class="price__from">From</span>
+  {% endif %}
+  <span>{{ price | money }}</span>
+  {% if compare_at_price > price %}
+    <s class="price__compare">{{ compare_at_price | money }}</s>
+  {% endif %}
+</div>

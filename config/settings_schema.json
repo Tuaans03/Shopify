@@ -1,0 +1,103 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Sena Studio",
+    "theme_version": "1.0.0",
+    "theme_author": "Sena",
+    "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
+    "theme_support_url": "https://help.shopify.com/"
+  },
+  {
+    "name": "Brand",
+    "settings": [
+      {
+        "type": "text",
+        "id": "brand_name",
+        "label": "Brand name",
+        "default": "Wear Vibe Co"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "font_picker",
+        "id": "type_heading_font",
+        "default": "archivo_black_n4",
+        "label": "Heading font"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_body_font",
+        "default": "work_sans_n4",
+        "label": "Body font"
+      }
+    ]
+  },
+  {
+    "name": "Layout",
+    "settings": [
+      {
+        "type": "range",
+        "id": "max_page_width",
+        "min": 1100,
+        "max": 1600,
+        "step": 20,
+        "unit": "px",
+        "label": "Maximum page width",
+        "default": 1400
+      },
+      {
+        "type": "range",
+        "id": "min_page_margin",
+        "min": 16,
+        "max": 64,
+        "step": 4,
+        "unit": "px",
+        "label": "Page side margin",
+        "default": 24
+      },
+      {
+        "type": "range",
+        "id": "card_corner_radius",
+        "min": 0,
+        "max": 32,
+        "step": 2,
+        "unit": "px",
+        "label": "Card corner radius",
+        "default": 12
+      },
+      {
+        "type": "range",
+        "id": "button_corner_radius",
+        "min": 0,
+        "max": 30,
+        "step": 2,
+        "unit": "px",
+        "label": "Button corner radius",
+        "default": 2
+      }
+    ]
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      { "type": "color", "id": "background_color", "default": "#F6F1E8", "label": "Background" },
+      { "type": "color", "id": "surface_color", "default": "#FFFDF8", "label": "Surface" },
+      { "type": "color", "id": "foreground_color", "default": "#171714", "label": "Text" },
+      { "type": "color", "id": "muted_color", "default": "#6D6B63", "label": "Muted text" },
+      { "type": "color", "id": "accent_color", "default": "#2459E0", "label": "Accent" },
+      { "type": "color", "id": "accent_contrast_color", "default": "#FFFFFF", "label": "Accent text" },
+      { "type": "color", "id": "border_color", "default": "#D8D1C4", "label": "Borders" }
+    ]
+  },
+  {
+    "name": "Social media",
+    "settings": [
+      { "type": "url", "id": "social_instagram", "label": "Instagram URL" },
+      { "type": "url", "id": "social_tiktok", "label": "TikTok URL" },
+      { "type": "url", "id": "social_facebook", "label": "Facebook URL" }
+    ]
+  }
+]

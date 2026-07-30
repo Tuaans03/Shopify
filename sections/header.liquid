@@ -1,0 +1,171 @@
+{% liquid
+  assign logo_width_2x = section.settings.logo_width | times: 2
+  assign collection_trigger_found = false
+  assign brand_name = settings.brand_name | default: shop.name
+%}
+
+<header class="site-header">
+  <div class="site-header__inner page-width">
+    <a class="site-logo" href="{{ routes.root_url }}" aria-label="{{ brand_name | escape }} home">
+      {% if section.settings.logo != blank %}
+        {{ section.settings.logo
+          | image_url: width: logo_width_2x
+          | image_tag: width: section.settings.logo_width, alt: brand_name, preload: true
+        }}
+      {% else %}
+        <span>{{ brand_name | escape }}</span><span class="site-logo__dot">.</span>
+      {% endif %}
+    </a>
+
+    <form class="header-search-bar" action="{{ routes.search_url }}" method="get" role="search">
+      <label class="visually-hidden" for="HeaderSearch-{{ section.id }}">Search products</label>
+      <input
+        id="HeaderSearch-{{ section.id }}"
+        type="search"
+        name="q"
+        value="{{ search.terms | escape }}"
+        placeholder="{{ section.settings.search_placeholder | escape }}"
+        autocomplete="off"
+      >
+      <button type="submit">Search</button>
+    </form>
+
+    <nav class="desktop-nav" aria-label="Primary navigation">
+      {% for link in section.settings.menu.links %}
+        {% liquid
+          assign link_title_downcase = link.title | downcase
+          assign is_collection_trigger = false
+          if section.settings.auto_collection_dropdown
+            if link_title_downcase contains 'collection' or link_title_downcase contains 'catalog'
+              assign is_collection_trigger = true
+              assign collection_trigger_found = true
+            endif
+          endif
+        %}
+
+        {% if link.links != blank or is_collection_trigger %}
+          <details class="desktop-nav__dropdown{% if link.current or link.child_active %} is-active{% endif %}">
+            <summary>
+              {% if is_collection_trigger %}{{ section.settings.collection_dropdown_label | escape }}{% else %}{{ link.title | escape }}{% endif %}
+            </summary>
+            <div class="desktop-nav__dropdown-panel">
+              <div class="desktop-nav__dropdown-surface">
+                <a class="desktop-nav__dropdown-all" href="{% if is_collection_trigger %}{{ routes.collections_url }}{% else %}{{ link.url }}{% endif %}">
+                  {% if is_collection_trigger %}Shop all collections{% else %}Shop all {{ link.title | escape }}{% endif %}
+                </a>
+
+                {% if link.links != blank %}
+                  {% for child_link in link.links %}
+                    <a href="{{ child_link.url }}"{% if child_link.current %} aria-current="page"{% endif %}>{{ child_link.title | escape }}</a>
+                  {% endfor %}
+                {% elsif is_collection_trigger %}
+                  {% render 'collection-navigation-tree', mobile: false, limit_count: section.settings.collections_to_show %}
+                {% endif %}
+              </div>
+            </div>
+          </details>
+        {% else %}
+          <a class="desktop-nav__link{% if link.current %} is-active{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+        {% endif %}
+      {% endfor %}
+
+      {% if section.settings.auto_collection_dropdown and collection_trigger_found == false %}
+        <details class="desktop-nav__dropdown">
+          <summary>{{ section.settings.collection_dropdown_label | escape }}</summary>
+          <div class="desktop-nav__dropdown-panel">
+            <div class="desktop-nav__dropdown-surface">
+              <a class="desktop-nav__dropdown-all" href="{{ routes.collections_url }}">Shop all collections</a>
+              {% render 'collection-navigation-tree', mobile: false, limit_count: section.settings.collections_to_show %}
+            </div>
+          </div>
+        </details>
+      {% endif %}
+
+      {% if section.settings.show_all_products_link %}<a class="desktop-nav__link" href="{{ routes.all_products_collection_url }}">All products</a>{% endif %}
+      {% if section.settings.show_product_finder_link %}<a class="desktop-nav__link" href="{{ routes.search_url }}">Product finder</a>{% endif %}
+    </nav>
+
+    <details class="mobile-nav" scroll-lock>
+      <summary class="mobile-nav__summary" aria-label="Open menu">Menu</summary>
+      <div class="mobile-nav__panel">
+        <nav class="mobile-nav__links" aria-label="Mobile navigation">
+          {% assign mobile_collection_trigger_found = false %}
+          {% for link in section.settings.menu.links %}
+            {% liquid
+              assign mobile_link_title = link.title | downcase
+              assign is_mobile_collection_trigger = false
+              if section.settings.auto_collection_dropdown
+                if mobile_link_title contains 'collection' or mobile_link_title contains 'catalog'
+                  assign is_mobile_collection_trigger = true
+                  assign mobile_collection_trigger_found = true
+                endif
+              endif
+            %}
+            {% if is_mobile_collection_trigger %}
+              <details class="mobile-nav__group">
+                <summary>{{ section.settings.collection_dropdown_label | escape }}</summary>
+                <div>
+                  <a href="{{ routes.collections_url }}">Shop all collections</a>
+                  {% if link.links != blank %}
+                    {% for child_link in link.links %}<a href="{{ child_link.url }}">{{ child_link.title | escape }}</a>{% endfor %}
+                  {% else %}
+                    {% render 'collection-navigation-tree', mobile: true, limit_count: section.settings.collections_to_show %}
+                  {% endif %}
+                </div>
+              </details>
+            {% else %}
+              <a href="{{ link.url }}">{{ link.title | escape }}</a>
+              {% for child_link in link.links %}<a href="{{ child_link.url }}">— {{ child_link.title | escape }}</a>{% endfor %}
+            {% endif %}
+          {% endfor %}
+
+          {% if section.settings.auto_collection_dropdown and mobile_collection_trigger_found == false %}
+            <details class="mobile-nav__group">
+              <summary>{{ section.settings.collection_dropdown_label | escape }}</summary>
+              <div>
+                <a href="{{ routes.collections_url }}">Shop all collections</a>
+                {% render 'collection-navigation-tree', mobile: true, limit_count: section.settings.collections_to_show %}
+              </div>
+            </details>
+          {% endif %}
+          {% if section.settings.show_all_products_link %}<a href="{{ routes.all_products_collection_url }}">All products</a>{% endif %}
+          {% if section.settings.show_product_finder_link %}<a href="{{ routes.search_url }}">Product finder</a>{% endif %}
+        </nav>
+        <div class="mobile-nav__secondary">
+          <a href="{{ routes.search_url }}">Search</a>
+          {% if shop.customer_accounts_enabled %}<a href="{{ routes.account_url }}">Account</a>{% endif %}
+        </div>
+      </div>
+    </details>
+
+    <div class="header-actions">
+      {% if shop.customer_accounts_enabled %}
+        <a class="header-action header-action--account" href="{{ routes.account_url }}" aria-label="Account">{{ 'icon-account.svg' | inline_asset_content }}</a>
+      {% endif %}
+
+      <a class="header-action" href="{{ routes.cart_url }}" aria-label="Cart with {{ cart.item_count }} items">
+        {{ 'icon-cart.svg' | inline_asset_content }}
+        {% if cart.item_count > 0 %}<span class="cart-count" aria-hidden="true">{{ cart.item_count }}</span>{% endif %}
+      </a>
+    </div>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    { "type": "image_picker", "id": "logo", "label": "Logo" },
+    { "type": "range", "id": "logo_width", "min": 80, "max": 240, "step": 10, "unit": "px", "label": "Logo width", "default": 140 },
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu" },
+    { "type": "text", "id": "search_placeholder", "label": "Search placeholder", "default": "Search graphic tees, styles, and collections" },
+    { "type": "header", "content": "Collection dropdown" },
+    { "type": "checkbox", "id": "auto_collection_dropdown", "label": "Create collection dropdown automatically", "default": true },
+    { "type": "text", "id": "collection_dropdown_label", "label": "Dropdown label", "default": "Collections" },
+    { "type": "range", "id": "collections_to_show", "min": 4, "max": 16, "step": 4, "label": "Collections to show", "default": 12 },
+    { "type": "checkbox", "id": "show_all_products_link", "label": "Show All products link", "default": true },
+    { "type": "checkbox", "id": "show_product_finder_link", "label": "Show Product finder link", "default": true }
+  ],
+  "enabled_on": { "groups": ["header"] }
+}
+{% endschema %}

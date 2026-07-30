@@ -1,0 +1,22 @@
+{
+  "sections": {
+    "main": {
+      "type": "contact-form",
+      "settings": {
+        "eyebrow": "We’re here to help",
+        "heading": "Let’s talk.",
+        "text": "<p>Questions about an order, a size, or a design? Send a note and include your order number if you have one.</p>"
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "faq_1": { "type": "question", "settings": { "question": "Where can I find my order number?", "answer": "<p>Your order number is included in the confirmation email sent after checkout.</p>" } },
+        "faq_2": { "type": "question", "settings": { "question": "Can I change an order after placing it?", "answer": "<p>Contact us as soon as possible. Because production begins after ordering, changes may not be possible once your item enters production.</p>" } }
+      },
+      "block_order": ["faq_1", "faq_2"],
+      "settings": { "eyebrow": "Before you send", "heading": "Quick answers.", "text": "A couple of things that may help right away." }
+    }
+  },
+  "order": ["main", "faq"]
+}
