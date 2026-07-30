@@ -3,8 +3,31 @@
   assign secondary_image = card_product.images[1]
   assign selected_variant = card_product.selected_or_first_available_variant
   assign on_sale = false
+  assign is_new = false
+  assign is_best_seller = false
+  assign color_option = blank
   if card_product.compare_at_price_max > card_product.price
     assign on_sale = true
+  endif
+
+  for product_tag in card_product.tags
+    assign normalized_tag = product_tag | downcase | strip
+    if normalized_tag == 'new' or normalized_tag == 'new arrival' or normalized_tag == 'new arrivals'
+      assign is_new = true
+    endif
+    if normalized_tag == 'best seller' or normalized_tag == 'best-seller' or normalized_tag == 'bestseller'
+      assign is_best_seller = true
+    endif
+  endfor
+
+  if show_color_swatches
+    for product_option in card_product.options_with_values
+      assign normalized_option_name = product_option.name | downcase
+      if normalized_option_name == 'color' or normalized_option_name == 'colour'
+        assign color_option = product_option
+        break
+      endif
+    endfor
   endif
 %}
 
@@ -39,6 +62,8 @@
 
     <div class="product-card__badges">
       {% unless card_product.available %}<span class="badge">Sold out</span>{% endunless %}
+      {% if is_new %}<span class="badge badge--new">New</span>{% endif %}
+      {% if is_best_seller %}<span class="badge badge--best-seller">Best seller</span>{% endif %}
       {% if on_sale %}<span class="badge badge--sale">Sale</span>{% endif %}
     </div>
 
@@ -65,5 +90,21 @@
       <a href="{{ card_product.url | within: collection }}">{{ card_product.title | escape }}</a>
     </h3>
     {% render 'price', product: card_product %}
+    {% if color_option != blank %}
+      <div class="product-card__swatches" aria-label="Available colors">
+        {% for option_value in color_option.values limit: 6 %}
+          {% if option_value.swatch.color != blank or option_value.swatch.image != blank %}
+            <span
+              class="product-card__swatch"
+              title="{{ option_value | escape }}"
+              {% if option_value.swatch.image != blank %}style="--swatch-background: url('{{ option_value.swatch.image | image_url: width: 40 }}')"{% elsif option_value.swatch.color != blank %}style="--swatch-background: {{ option_value.swatch.color }}"{% endif %}
+            ><span class="visually-hidden">{{ option_value | escape }}</span></span>
+          {% else %}
+            <span class="product-card__swatch product-card__swatch--text" title="{{ option_value | escape }}">{{ option_value | escape }}</span>
+          {% endif %}
+        {% endfor %}
+        {% if color_option.values.size > 6 %}<span class="product-card__swatch-more">+{{ color_option.values.size | minus: 6 }}</span>{% endif %}
+      </div>
+    {% endif %}
   </div>
 </article>

@@ -5,6 +5,7 @@ class SenaTheme {
     this.bindAutoSubmit();
     this.bindProductRecommendations();
     this.bindDesktopNavHover();
+    this.bindFilterDrawers();
     this.syncHeaderHeight();
   }
 
@@ -124,9 +125,28 @@ class SenaTheme {
 
       dropdown.addEventListener('pointerleave', (event) => {
         if (event.pointerType !== 'mouse') return;
+        if (dropdown.contains(document.activeElement)) return;
 
         dropdown.removeAttribute('open');
-        if (dropdown.contains(document.activeElement)) document.activeElement.blur();
+      });
+    });
+  }
+
+  bindFilterDrawers() {
+    document.querySelectorAll('[data-filter-drawer]').forEach((drawer) => {
+      const trigger = drawer.querySelector(':scope > summary');
+      const closeButton = drawer.querySelector('[data-filter-close]');
+
+      const closeDrawer = () => {
+        drawer.removeAttribute('open');
+        trigger?.focus();
+      };
+
+      closeButton?.addEventListener('click', closeDrawer);
+      drawer.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        event.preventDefault();
+        closeDrawer();
       });
     });
   }

@@ -17,9 +17,18 @@
           {% unless tile_collection.handle == 'gildan' or tile_collection.handle == 'bella-canvas' %}
             {% assign configured_collections = configured_collections | plus: 1 %}
             {% assign tile_image = block.settings.image | default: tile_collection.image | default: tile_collection.products.first.featured_image %}
+            {% assign generated_asset = blank %}
+            {% case tile_collection.handle %}
+              {% when 'best-sellers', 'best-seller' %}{% assign generated_asset = 'collection-best-sellers.jpg' %}
+              {% when 'new-arrivals', 'new-arrival' %}{% assign generated_asset = 'collection-new-arrivals.jpg' %}
+              {% when 'sweatshirts', 'sweatshirt' %}{% assign generated_asset = 'collection-sweatshirts.jpg' %}
+              {% when 't-shirts', 't-shirt' %}{% assign generated_asset = 'collection-t-shirts.jpg' %}
+            {% endcase %}
             <a class="collection-tile" href="{{ tile_collection.url }}" {{ block.shopify_attributes }}>
               {% if tile_image != blank %}
                 {{ tile_image | image_url: width: 1000 | image_tag: loading: 'lazy', widths: '360, 540, 720, 1000', sizes: '(min-width: 1100px) 50vw, (min-width: 560px) 50vw, 80vw', alt: tile_collection.title }}
+              {% elsif generated_asset != blank %}
+                <img src="{{ generated_asset | asset_url }}" width="1254" height="1254" loading="lazy" alt="{{ tile_collection.title | escape }} collection">
               {% else %}
                 {{ 'collection-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}
               {% endif %}
@@ -38,9 +47,18 @@
           {% unless tile_collection.handle == 'gildan' or tile_collection.handle == 'bella-canvas' %}
             {% if top_level_collections_shown < 4 %}
               {% assign tile_image = tile_collection.image | default: tile_collection.products.first.featured_image %}
+              {% assign generated_asset = blank %}
+              {% case tile_collection.handle %}
+                {% when 'best-sellers', 'best-seller' %}{% assign generated_asset = 'collection-best-sellers.jpg' %}
+                {% when 'new-arrivals', 'new-arrival' %}{% assign generated_asset = 'collection-new-arrivals.jpg' %}
+                {% when 'sweatshirts', 'sweatshirt' %}{% assign generated_asset = 'collection-sweatshirts.jpg' %}
+                {% when 't-shirts', 't-shirt' %}{% assign generated_asset = 'collection-t-shirts.jpg' %}
+              {% endcase %}
               <a class="collection-tile" href="{{ tile_collection.url }}">
                 {% if tile_image != blank %}
                   {{ tile_image | image_url: width: 1000 | image_tag: loading: 'lazy', widths: '360, 540, 720, 1000', sizes: '(min-width: 1100px) 50vw, (min-width: 560px) 50vw, 80vw', alt: tile_collection.title }}
+                {% elsif generated_asset != blank %}
+                  <img src="{{ generated_asset | asset_url }}" width="1254" height="1254" loading="lazy" alt="{{ tile_collection.title | escape }} collection">
                 {% else %}
                   {{ 'collection-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}
                 {% endif %}

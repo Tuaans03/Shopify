@@ -1,6 +1,13 @@
 {% liquid
   assign sort_by = collection.sort_by | default: collection.default_sort_by
-  assign t_shirts_collection = collections['t-shirts']
+  assign is_shop_all = false
+  if collection.handle == 'all'
+    assign is_shop_all = true
+  endif
+
+  assign t_shirts_collection = section.settings.t_shirts_collection | default: collections['t-shirts']
+  assign sweatshirts_collection = section.settings.sweatshirts_collection | default: collections['sweatshirts']
+  assign new_arrivals_collection = section.settings.new_arrivals_collection | default: collections['new-arrivals']
   assign gildan_collection = collections['gildan']
   assign bella_canvas_collection = collections['bella-canvas']
   assign display_collection = collection
@@ -22,108 +29,116 @@
   elsif section.settings.enable_filtering and collection.filters != empty
     assign has_filters = true
   endif
+
+  assign filters_active = false
+  if collection.handle == 'gildan' or collection.handle == 'bella-canvas'
+    assign filters_active = true
+  endif
+  for filter in collection.filters
+    if filter.active_values.size > 0
+      assign filters_active = true
+    endif
+    if filter.type == 'price_range' and filter.min_value.value or filter.max_value.value
+      assign filters_active = true
+    endif
+  endfor
+
+  assign show_hero_image = false
+  if is_shop_all == false and display_collection.image and section.settings.show_collection_image
+    assign show_hero_image = true
+  endif
 %}
 
-<header class="collection-hero{% if display_collection.image and section.settings.show_collection_image %} collection-hero--image{% endif %}"
-  {% if display_collection.image and section.settings.show_collection_image %}style="background-image: linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.68)), url('{{ display_collection.image | image_url: width: 2400 }}')"{% endif %}>
-  <div class="page-width">
-    <p class="section-eyebrow">Collection</p>
-    <h1 class="collection-hero__title">{{ display_collection.title | escape }}</h1>
-    {% if display_collection.description != blank %}<div class="collection-hero__description rte">{{ display_collection.description }}</div>{% endif %}
+<header class="collection-hero{% if is_shop_all %} collection-hero--shop-all{% endif %}{% if show_hero_image %} collection-hero--image{% endif %}"
+  {% if show_hero_image %}style="background-image: linear-gradient(180deg, rgba(0,0,0,.12), rgba(0,0,0,.68)), url('{{ display_collection.image | image_url: width: 2400 }}')"{% endif %}>
+  <div class="collection-hero__inner page-width">
+    <div class="collection-hero__copy">
+      <p class="section-eyebrow">{% if is_shop_all %}Shop all{% else %}Collection{% endif %}</p>
+      <h1 class="collection-hero__title">{% if is_shop_all %}Find your next graphic tee.{% else %}{{ display_collection.title | escape }}{% endif %}</h1>
+      {% if is_shop_all %}
+        <p class="collection-hero__description">Graphic T-shirts and sweatshirts made for your rotation.</p>
+      {% elsif display_collection.description != blank %}
+        <div class="collection-hero__description rte">{{ display_collection.description }}</div>
+      {% endif %}
+    </div>
+
+    {% if is_shop_all and section.settings.show_hero_ctas %}
+      <div class="collection-hero__actions">
+        {% if t_shirts_collection != blank %}<a class="button button--accent" href="{{ t_shirts_collection.url }}">Shop T-Shirts</a>{% endif %}
+        {% if sweatshirts_collection != blank %}<a class="button button--outline" href="{{ sweatshirts_collection.url }}">Shop Sweatshirts</a>{% endif %}
+      </div>
+    {% endif %}
   </div>
 </header>
 
-{% paginate collection.products by section.settings.products_per_page %}
-  <div class="collection-layout page-width{% unless has_filters %} collection-layout--no-filters{% endunless %}">
-    {% if has_filters %}
-      <aside class="collection-filters" aria-label="Product filters">
-        <form action="{{ collection.url }}" method="get">
-          <h2 class="filters__title">Filter</h2>
+{% if is_shop_all and section.settings.show_category_cards %}
+  <section class="collection-categories" aria-labelledby="CollectionCategories-{{ section.id }}">
+    <div class="page-width">
+      <div class="collection-categories__header">
+        <div>
+          <p class="section-eyebrow">Start here</p>
+          <h2 id="CollectionCategories-{{ section.id }}">Shop by category</h2>
+        </div>
+      </div>
+      <div class="collection-categories__grid">
+        {% render 'collection-category-card', card_collection: t_shirts_collection, card_title: 'T-Shirts' %}
+        {% render 'collection-category-card', card_collection: sweatshirts_collection, card_title: 'Sweatshirts' %}
+        {% render 'collection-category-card', card_collection: new_arrivals_collection, card_title: 'New Arrivals' %}
+      </div>
+      {% if request.design_mode and t_shirts_collection == blank and sweatshirts_collection == blank and new_arrivals_collection == blank %}
+        <div class="empty-state">Select the three category collections in this section's settings.</div>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
 
-          {% if show_t_shirt_brand_filter %}
-            <details class="filter-group" open>
-              <summary>T-Shirt brand</summary>
-              <div class="filter-values">
-                {% if t_shirts_collection != blank %}
-                  <a class="filter-value filter-value--link{% if collection.handle == 't-shirts' %} is-active{% endif %}" href="{{ t_shirts_collection.url }}">
-                    <span>All T-Shirts</span><small>{{ t_shirts_collection.products_count }}</small>
-                  </a>
-                {% endif %}
-                {% if gildan_collection != blank %}
-                  <a class="filter-value filter-value--link{% if collection.handle == 'gildan' %} is-active{% endif %}" href="{{ gildan_collection.url }}">
-                    <span>{{ gildan_collection.title | escape }}</span><small>{{ gildan_collection.products_count }}</small>
-                  </a>
-                {% endif %}
-                {% if bella_canvas_collection != blank %}
-                  <a class="filter-value filter-value--link{% if collection.handle == 'bella-canvas' %} is-active{% endif %}" href="{{ bella_canvas_collection.url }}">
-                    <span>{{ bella_canvas_collection.title | escape }}</span><small>{{ bella_canvas_collection.products_count }}</small>
-                  </a>
-                {% endif %}
+{% paginate collection.products by section.settings.products_per_page %}
+  <section class="collection-products-section">
+    <div class="page-width">
+      <div class="collection-toolbar">
+        <p class="collection-count" aria-live="polite">{{ collection.products_count }} products</p>
+
+        <div class="collection-toolbar__controls">
+          {% if has_filters %}
+            <details class="collection-filter-menu" data-filter-drawer>
+              <summary class="button button--outline">
+                Filter{% if filters_active %}<span class="collection-filter-menu__status">Active</span>{% endif %}
+              </summary>
+              <div class="collection-filter-menu__panel">
+                {% render 'collection-filter-form',
+                  id_prefix: section.id,
+                  collection: collection,
+                  section: section,
+                  sort_by: sort_by,
+                  show_t_shirt_brand_filter: show_t_shirt_brand_filter,
+                  t_shirts_collection: t_shirts_collection,
+                  gildan_collection: gildan_collection,
+                  bella_canvas_collection: bella_canvas_collection
+                %}
               </div>
             </details>
           {% endif %}
 
-          {% if section.settings.enable_filtering %}
-            {% for filter in collection.filters %}
-              <details class="filter-group" open>
-                <summary>{{ filter.label | escape }}</summary>
-                {% case filter.type %}
-                  {% when 'boolean', 'list' %}
-                    <div class="filter-values">
-                      {% for value in filter.values %}
-                        <label class="filter-value" for="Filter-{{ filter.param_name | escape }}-{{ forloop.index }}">
-                          <input id="Filter-{{ filter.param_name | escape }}-{{ forloop.index }}" type="checkbox" name="{{ value.param_name }}" value="{{ value.value }}"{% if value.active %} checked{% endif %}{% if value.count == 0 and value.active == false %} disabled{% endif %}>
-                          <span>{{ value.label | escape }} ({{ value.count }})</span>
-                        </label>
-                      {% endfor %}
-                    </div>
-                  {% when 'price_range' %}
-                    <div class="filter-price">
-                      <label>Min
-                        <input type="number" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}" min="0" placeholder="0">
-                      </label>
-                      <label>Max
-                        <input type="number" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}" min="0" placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}">
-                      </label>
-                    </div>
-                {% endcase %}
-              </details>
-            {% endfor %}
+          {% if section.settings.enable_sorting %}
+            <form class="sort-form" action="{{ collection.url }}" method="get">
+              {% for filter in collection.filters %}
+                {% for value in filter.active_values %}<input type="hidden" name="{{ value.param_name }}" value="{{ value.value }}">{% endfor %}
+                {% if filter.type == 'price_range' %}
+                  {% if filter.min_value.value %}<input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}">{% endif %}
+                  {% if filter.max_value.value %}<input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}">{% endif %}
+                {% endif %}
+              {% endfor %}
+              <label for="SortBy-{{ section.id }}">Sort by</label>
+              <select id="SortBy-{{ section.id }}" name="sort_by" data-auto-submit>
+                {% for option in collection.sort_options %}<option value="{{ option.value | escape }}"{% if option.value == sort_by %} selected{% endif %}>{{ option.name | escape }}</option>{% endfor %}
+              </select>
+            </form>
           {% endif %}
-
-          {% if section.settings.enable_filtering and collection.filters != empty %}
-            <input type="hidden" name="sort_by" value="{{ sort_by }}">
-            <div class="filter-actions">
-              <button class="button button--accent" type="submit">Apply filters</button>
-              <a class="button button--outline" href="{% if show_t_shirt_brand_filter and t_shirts_collection != blank %}{{ t_shirts_collection.url }}{% else %}{{ collection.url }}{% endif %}?sort_by={{ sort_by }}">Clear all</a>
-            </div>
-          {% endif %}
-        </form>
-      </aside>
-    {% endif %}
-
-    <div>
-      <div class="collection-toolbar">
-        <p class="collection-count">{{ collection.products_count }} products</p>
-        {% if section.settings.enable_sorting %}
-          <form class="sort-form" action="{{ collection.url }}" method="get">
-            {% for filter in collection.filters %}
-              {% for value in filter.active_values %}<input type="hidden" name="{{ value.param_name }}" value="{{ value.value }}">{% endfor %}
-              {% if filter.type == 'price_range' %}
-                {% if filter.min_value.value %}<input type="hidden" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}">{% endif %}
-                {% if filter.max_value.value %}<input type="hidden" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}">{% endif %}
-              {% endif %}
-            {% endfor %}
-            <label for="SortBy-{{ section.id }}">Sort by</label>
-            <select id="SortBy-{{ section.id }}" name="sort_by" data-auto-submit>
-              {% for option in collection.sort_options %}<option value="{{ option.value | escape }}"{% if option.value == sort_by %} selected{% endif %}>{{ option.name | escape }}</option>{% endfor %}
-            </select>
-          </form>
-        {% endif %}
+        </div>
       </div>
 
-      {% if has_filters %}
-        <div class="active-filters">
+      {% if filters_active %}
+        <div class="active-filters" aria-label="Active filters">
           {% if collection.handle == 'gildan' or collection.handle == 'bella-canvas' %}
             <a class="active-filter" href="{{ t_shirts_collection.url }}">{{ collection.title | escape }} ×</a>
           {% endif %}
@@ -136,30 +151,56 @@
         </div>
       {% endif %}
 
-      <div class="product-grid">
+      <div class="product-grid collection-product-grid">
         {% for product in collection.products %}
-          {% render 'product-card', product: product, collection: collection, show_vendor: section.settings.show_vendor %}
+          {% render 'product-card', product: product, collection: collection, show_vendor: section.settings.show_vendor, show_color_swatches: section.settings.show_color_swatches %}
         {% else %}
-          <div class="empty-state">No products match these filters. Try removing one or start again.</div>
+          {% if collection.all_products_count == 0 %}
+            <div class="empty-state empty-state--launch">
+              <p class="section-eyebrow">Coming soon</p>
+              <h2>New designs are on the way</h2>
+              <p>We’re preparing the first Wear Vibe Co. collection. Join our email list to be the first to know when it drops.</p>
+              <div class="empty-state__actions">
+                <a class="button button--accent" href="#NewsletterSignup">Join the list</a>
+                <a class="button button--outline" href="{{ routes.root_url }}">Back to home</a>
+              </div>
+            </div>
+          {% else %}
+            <div class="empty-state empty-state--filters">
+              <h2>No products match these filters</h2>
+              <p>Clear filters to see all products.</p>
+              <a class="button button--outline" href="{{ collection.url }}">Clear filters</a>
+            </div>
+          {% endif %}
         {% endfor %}
       </div>
-      {% if paginate.pages > 1 %}<div class="pagination">{{ paginate | default_pagination }}</div>{% endif %}
-    </div>
-  </div>
-{% endpaginate %}
 
-{% stylesheet %}
-  .collection-layout--no-filters { grid-template-columns: 1fr; }
-{% endstylesheet %}
+      {% if paginate.pages > 1 %}<nav class="pagination" aria-label="Collection pagination">{{ paginate | default_pagination }}</nav>{% endif %}
+
+      <div class="collection-trust-bar" aria-label="Store benefits">
+        <div><span aria-hidden="true">✓</span><strong>Made on demand</strong></div>
+        <div><span aria-hidden="true">✓</span><strong>Ships across the U.S.</strong></div>
+        <div><span aria-hidden="true">✓</span><strong>Secure checkout</strong></div>
+        <div><span aria-hidden="true">✓</span><strong>Customer support</strong></div>
+      </div>
+    </div>
+  </section>
+{% endpaginate %}
 
 {% schema %}
 {
   "name": "Collection products",
   "settings": [
     { "type": "checkbox", "id": "show_collection_image", "label": "Show collection image", "default": true },
+    { "type": "checkbox", "id": "show_hero_ctas", "label": "Show Shop all hero buttons", "default": true },
+    { "type": "checkbox", "id": "show_category_cards", "label": "Show category cards on Shop all", "default": true },
+    { "type": "collection", "id": "t_shirts_collection", "label": "T-Shirts collection" },
+    { "type": "collection", "id": "sweatshirts_collection", "label": "Sweatshirts collection" },
+    { "type": "collection", "id": "new_arrivals_collection", "label": "New arrivals collection" },
     { "type": "checkbox", "id": "enable_filtering", "label": "Enable filtering", "default": true },
     { "type": "checkbox", "id": "enable_sorting", "label": "Enable sorting", "default": true },
     { "type": "checkbox", "id": "show_vendor", "label": "Show vendor", "default": false },
+    { "type": "checkbox", "id": "show_color_swatches", "label": "Show color swatches", "default": true },
     { "type": "range", "id": "products_per_page", "min": 12, "max": 48, "step": 4, "label": "Products per page", "default": 24 }
   ]
 }

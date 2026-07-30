@@ -1,7 +1,44 @@
 {% liquid
   assign logo_width_2x = section.settings.logo_width | times: 2
-  assign collection_trigger_found = false
   assign brand_name = settings.brand_name | default: shop.name
+  assign navigation_menu = section.settings.menu
+
+  assign new_arrivals_collection = section.settings.new_arrivals_collection | default: collections['new-arrivals']
+  assign best_sellers_collection = section.settings.best_sellers_collection | default: collections['best-sellers']
+  assign t_shirts_collection = section.settings.t_shirts_collection | default: collections['t-shirts']
+  assign sweatshirts_collection = section.settings.sweatshirts_collection | default: collections['sweatshirts']
+  assign gildan_collection = section.settings.gildan_collection | default: collections['gildan']
+  assign bella_canvas_collection = section.settings.bella_canvas_collection | default: collections['bella-canvas']
+
+  assign new_arrivals_url = '/collections/new-arrivals'
+  assign best_sellers_url = '/collections/best-sellers'
+  assign t_shirts_url = '/collections/t-shirts'
+  assign sweatshirts_url = '/collections/sweatshirts'
+  assign gildan_url = '/collections/gildan'
+  assign bella_canvas_url = '/collections/bella-canvas'
+  assign contact_url = '/pages/contact'
+
+  if new_arrivals_collection != blank
+    assign new_arrivals_url = new_arrivals_collection.url
+  endif
+  if best_sellers_collection != blank
+    assign best_sellers_url = best_sellers_collection.url
+  endif
+  if t_shirts_collection != blank
+    assign t_shirts_url = t_shirts_collection.url
+  endif
+  if sweatshirts_collection != blank
+    assign sweatshirts_url = sweatshirts_collection.url
+  endif
+  if gildan_collection != blank
+    assign gildan_url = gildan_collection.url
+  endif
+  if bella_canvas_collection != blank
+    assign bella_canvas_url = bella_canvas_collection.url
+  endif
+  if pages['contact'] != blank
+    assign contact_url = pages['contact'].url
+  endif
 %}
 
 <header class="site-header">
@@ -31,105 +68,80 @@
     </form>
 
     <nav class="desktop-nav" aria-label="Primary navigation">
-      {% for link in section.settings.menu.links %}
-        {% liquid
-          assign link_title_downcase = link.title | downcase
-          assign is_collection_trigger = false
-          if section.settings.auto_collection_dropdown
-            if link_title_downcase contains 'collection' or link_title_downcase contains 'catalog'
-              assign is_collection_trigger = true
-              assign collection_trigger_found = true
-            endif
-          endif
-        %}
-
-        {% if link.links != blank or is_collection_trigger %}
-          <details class="desktop-nav__dropdown{% if link.current or link.child_active %} is-active{% endif %}">
-            <summary>
-              {% if is_collection_trigger %}{{ section.settings.collection_dropdown_label | escape }}{% else %}{{ link.title | escape }}{% endif %}
-            </summary>
-            <div class="desktop-nav__dropdown-panel">
-              <div class="desktop-nav__dropdown-surface">
-                <a class="desktop-nav__dropdown-all" href="{% if is_collection_trigger %}{{ routes.collections_url }}{% else %}{{ link.url }}{% endif %}">
-                  {% if is_collection_trigger %}Shop all collections{% else %}Shop all {{ link.title | escape }}{% endif %}
-                </a>
-
-                {% if link.links != blank %}
+      {% if navigation_menu != blank and navigation_menu.links != blank %}
+        {% for link in navigation_menu.links %}
+          {% if link.links != blank %}
+            <details class="desktop-nav__dropdown{% if link.current or link.child_active %} is-active{% endif %}">
+              <summary>{{ link.title | escape }}</summary>
+              <div class="desktop-nav__dropdown-panel">
+                <div class="desktop-nav__dropdown-surface">
+                  {% unless link.url == blank or link.url == '#' %}
+                    <a class="desktop-nav__dropdown-all" href="{{ link.url }}">Shop all {{ link.title | escape }}</a>
+                  {% endunless %}
                   {% for child_link in link.links %}
                     <a href="{{ child_link.url }}"{% if child_link.current %} aria-current="page"{% endif %}>{{ child_link.title | escape }}</a>
                   {% endfor %}
-                {% elsif is_collection_trigger %}
-                  {% render 'collection-navigation-tree', mobile: false, limit_count: section.settings.collections_to_show %}
-                {% endif %}
+                </div>
               </div>
-            </div>
-          </details>
-        {% else %}
-          <a class="desktop-nav__link{% if link.current %} is-active{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
-        {% endif %}
-      {% endfor %}
-
-      {% if section.settings.auto_collection_dropdown and collection_trigger_found == false %}
-        <details class="desktop-nav__dropdown">
-          <summary>{{ section.settings.collection_dropdown_label | escape }}</summary>
+            </details>
+          {% else %}
+            <a class="desktop-nav__link{% if link.current %} is-active{% endif %}" href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <a class="desktop-nav__link{% if request.path == routes.root_url %} is-active{% endif %}" href="{{ routes.root_url }}"{% if request.path == routes.root_url %} aria-current="page"{% endif %}>Home</a>
+        <a class="desktop-nav__link{% if request.path == routes.all_products_collection_url %} is-active{% endif %}" href="{{ routes.all_products_collection_url }}"{% if request.path == routes.all_products_collection_url %} aria-current="page"{% endif %}>Shop</a>
+        <a class="desktop-nav__link{% if request.path == new_arrivals_url %} is-active{% endif %}" href="{{ new_arrivals_url }}"{% if request.path == new_arrivals_url %} aria-current="page"{% endif %}>New arrivals</a>
+        <a class="desktop-nav__link{% if request.path == best_sellers_url %} is-active{% endif %}" href="{{ best_sellers_url }}"{% if request.path == best_sellers_url %} aria-current="page"{% endif %}>Best sellers</a>
+        <details class="desktop-nav__dropdown{% if request.path == t_shirts_url or request.path == gildan_url or request.path == bella_canvas_url %} is-active{% endif %}">
+          <summary>T-Shirts</summary>
           <div class="desktop-nav__dropdown-panel">
             <div class="desktop-nav__dropdown-surface">
-              <a class="desktop-nav__dropdown-all" href="{{ routes.collections_url }}">Shop all collections</a>
-              {% render 'collection-navigation-tree', mobile: false, limit_count: section.settings.collections_to_show %}
+              <a class="desktop-nav__dropdown-all" href="{{ t_shirts_url }}"{% if request.path == t_shirts_url %} aria-current="page"{% endif %}>Shop all T-Shirts</a>
+              <a href="{{ gildan_url }}"{% if request.path == gildan_url %} aria-current="page"{% endif %}>Gildan</a>
+              <a href="{{ bella_canvas_url }}"{% if request.path == bella_canvas_url %} aria-current="page"{% endif %}>Bella Canvas</a>
             </div>
           </div>
         </details>
+        <a class="desktop-nav__link{% if request.path == sweatshirts_url %} is-active{% endif %}" href="{{ sweatshirts_url }}"{% if request.path == sweatshirts_url %} aria-current="page"{% endif %}>Sweatshirts</a>
+        <a class="desktop-nav__link{% if request.path == contact_url %} is-active{% endif %}" href="{{ contact_url }}"{% if request.path == contact_url %} aria-current="page"{% endif %}>Contact</a>
       {% endif %}
-
-      {% if section.settings.show_all_products_link %}<a class="desktop-nav__link" href="{{ routes.all_products_collection_url }}">All products</a>{% endif %}
-      {% if section.settings.show_product_finder_link %}<a class="desktop-nav__link" href="{{ routes.search_url }}">Product finder</a>{% endif %}
     </nav>
 
     <details class="mobile-nav" scroll-lock>
       <summary class="mobile-nav__summary" aria-label="Open menu">Menu</summary>
       <div class="mobile-nav__panel">
         <nav class="mobile-nav__links" aria-label="Mobile navigation">
-          {% assign mobile_collection_trigger_found = false %}
-          {% for link in section.settings.menu.links %}
-            {% liquid
-              assign mobile_link_title = link.title | downcase
-              assign is_mobile_collection_trigger = false
-              if section.settings.auto_collection_dropdown
-                if mobile_link_title contains 'collection' or mobile_link_title contains 'catalog'
-                  assign is_mobile_collection_trigger = true
-                  assign mobile_collection_trigger_found = true
-                endif
-              endif
-            %}
-            {% if is_mobile_collection_trigger %}
-              <details class="mobile-nav__group">
-                <summary>{{ section.settings.collection_dropdown_label | escape }}</summary>
-                <div>
-                  <a href="{{ routes.collections_url }}">Shop all collections</a>
-                  {% if link.links != blank %}
+          {% if navigation_menu != blank and navigation_menu.links != blank %}
+            {% for link in navigation_menu.links %}
+              {% if link.links != blank %}
+                <details class="mobile-nav__group">
+                  <summary>{{ link.title | escape }}</summary>
+                  <div>
+                    {% unless link.url == blank or link.url == '#' %}<a href="{{ link.url }}">Shop all {{ link.title | escape }}</a>{% endunless %}
                     {% for child_link in link.links %}<a href="{{ child_link.url }}">{{ child_link.title | escape }}</a>{% endfor %}
-                  {% else %}
-                    {% render 'collection-navigation-tree', mobile: true, limit_count: section.settings.collections_to_show %}
-                  {% endif %}
-                </div>
-              </details>
-            {% else %}
-              <a href="{{ link.url }}">{{ link.title | escape }}</a>
-              {% for child_link in link.links %}<a href="{{ child_link.url }}">— {{ child_link.title | escape }}</a>{% endfor %}
-            {% endif %}
-          {% endfor %}
-
-          {% if section.settings.auto_collection_dropdown and mobile_collection_trigger_found == false %}
-            <details class="mobile-nav__group">
-              <summary>{{ section.settings.collection_dropdown_label | escape }}</summary>
+                  </div>
+                </details>
+              {% else %}
+                <a href="{{ link.url }}"{% if link.current %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <a href="{{ routes.root_url }}"{% if request.path == routes.root_url %} aria-current="page"{% endif %}>Home</a>
+            <a href="{{ routes.all_products_collection_url }}"{% if request.path == routes.all_products_collection_url %} aria-current="page"{% endif %}>Shop</a>
+            <a href="{{ new_arrivals_url }}"{% if request.path == new_arrivals_url %} aria-current="page"{% endif %}>New arrivals</a>
+            <a href="{{ best_sellers_url }}"{% if request.path == best_sellers_url %} aria-current="page"{% endif %}>Best sellers</a>
+            <details class="mobile-nav__group"{% if request.path == t_shirts_url or request.path == gildan_url or request.path == bella_canvas_url %} open{% endif %}>
+              <summary>T-Shirts</summary>
               <div>
-                <a href="{{ routes.collections_url }}">Shop all collections</a>
-                {% render 'collection-navigation-tree', mobile: true, limit_count: section.settings.collections_to_show %}
+                <a href="{{ t_shirts_url }}"{% if request.path == t_shirts_url %} aria-current="page"{% endif %}>Shop all T-Shirts</a>
+                <a href="{{ gildan_url }}"{% if request.path == gildan_url %} aria-current="page"{% endif %}>Gildan</a>
+                <a href="{{ bella_canvas_url }}"{% if request.path == bella_canvas_url %} aria-current="page"{% endif %}>Bella Canvas</a>
               </div>
             </details>
+            <a href="{{ sweatshirts_url }}"{% if request.path == sweatshirts_url %} aria-current="page"{% endif %}>Sweatshirts</a>
+            <a href="{{ contact_url }}"{% if request.path == contact_url %} aria-current="page"{% endif %}>Contact</a>
           {% endif %}
-          {% if section.settings.show_all_products_link %}<a href="{{ routes.all_products_collection_url }}">All products</a>{% endif %}
-          {% if section.settings.show_product_finder_link %}<a href="{{ routes.search_url }}">Product finder</a>{% endif %}
         </nav>
         <div class="mobile-nav__secondary">
           <a href="{{ routes.search_url }}">Search</a>
@@ -157,14 +169,15 @@
   "settings": [
     { "type": "image_picker", "id": "logo", "label": "Logo" },
     { "type": "range", "id": "logo_width", "min": 80, "max": 240, "step": 10, "unit": "px", "label": "Logo width", "default": 140 },
-    { "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu" },
+    { "type": "link_list", "id": "menu", "label": "Shopify navigation menu", "info": "Optional. Leave blank to use the simplified store navigation." },
     { "type": "text", "id": "search_placeholder", "label": "Search placeholder", "default": "Search graphic tees, styles, and collections" },
-    { "type": "header", "content": "Collection dropdown" },
-    { "type": "checkbox", "id": "auto_collection_dropdown", "label": "Create collection dropdown automatically", "default": true },
-    { "type": "text", "id": "collection_dropdown_label", "label": "Dropdown label", "default": "Collections" },
-    { "type": "range", "id": "collections_to_show", "min": 4, "max": 16, "step": 4, "label": "Collections to show", "default": 12 },
-    { "type": "checkbox", "id": "show_all_products_link", "label": "Show All products link", "default": true },
-    { "type": "checkbox", "id": "show_product_finder_link", "label": "Show Product finder link", "default": true }
+    { "type": "header", "content": "Simplified navigation collections" },
+    { "type": "collection", "id": "new_arrivals_collection", "label": "New arrivals" },
+    { "type": "collection", "id": "best_sellers_collection", "label": "Best sellers" },
+    { "type": "collection", "id": "t_shirts_collection", "label": "T-Shirts" },
+    { "type": "collection", "id": "sweatshirts_collection", "label": "Sweatshirts" },
+    { "type": "collection", "id": "gildan_collection", "label": "Gildan filter collection" },
+    { "type": "collection", "id": "bella_canvas_collection", "label": "Bella Canvas filter collection" }
   ],
   "enabled_on": { "groups": ["header"] }
 }

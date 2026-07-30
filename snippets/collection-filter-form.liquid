@@ -1,0 +1,71 @@
+{% liquid
+  assign clear_url = collection.url
+  if show_t_shirt_brand_filter and t_shirts_collection != blank
+    assign clear_url = t_shirts_collection.url
+  endif
+%}
+
+<form class="collection-filter-form" action="{{ collection.url }}" method="get">
+  <div class="collection-filter-form__header">
+    <h2>Filter products</h2>
+    <button class="collection-filter-form__close" type="button" data-filter-close aria-label="Close filters">×</button>
+  </div>
+
+  {% if show_t_shirt_brand_filter %}
+    <details class="filter-group" open>
+      <summary>T-Shirt brand</summary>
+      <div class="filter-values">
+        {% if t_shirts_collection != blank %}
+          <a class="filter-value filter-value--link{% if collection.handle == 't-shirts' %} is-active{% endif %}" href="{{ t_shirts_collection.url }}">
+            <span>All T-Shirts</span><small>{{ t_shirts_collection.products_count }}</small>
+          </a>
+        {% endif %}
+        {% if gildan_collection != blank %}
+          <a class="filter-value filter-value--link{% if collection.handle == 'gildan' %} is-active{% endif %}" href="{{ gildan_collection.url }}">
+            <span>{{ gildan_collection.title | escape }}</span><small>{{ gildan_collection.products_count }}</small>
+          </a>
+        {% endif %}
+        {% if bella_canvas_collection != blank %}
+          <a class="filter-value filter-value--link{% if collection.handle == 'bella-canvas' %} is-active{% endif %}" href="{{ bella_canvas_collection.url }}">
+            <span>{{ bella_canvas_collection.title | escape }}</span><small>{{ bella_canvas_collection.products_count }}</small>
+          </a>
+        {% endif %}
+      </div>
+    </details>
+  {% endif %}
+
+  {% if section.settings.enable_filtering %}
+    {% for filter in collection.filters %}
+      <details class="filter-group" open>
+        <summary>{{ filter.label | escape }}</summary>
+        {% case filter.type %}
+          {% when 'boolean', 'list' %}
+            <div class="filter-values">
+              {% for value in filter.values %}
+                {% capture filter_id %}Filter-{{ id_prefix }}-{{ filter.param_name | handle }}-{{ forloop.index }}{% endcapture %}
+                <label class="filter-value" for="{{ filter_id }}">
+                  <input id="{{ filter_id }}" type="checkbox" name="{{ value.param_name }}" value="{{ value.value }}"{% if value.active %} checked{% endif %}{% if value.count == 0 and value.active == false %} disabled{% endif %}>
+                  <span>{{ value.label | escape }} ({{ value.count }})</span>
+                </label>
+              {% endfor %}
+            </div>
+          {% when 'price_range' %}
+            <div class="filter-price">
+              <label for="Filter-{{ id_prefix }}-Min">Min</label>
+              <input id="Filter-{{ id_prefix }}-Min" type="number" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}" min="0" placeholder="0">
+              <label for="Filter-{{ id_prefix }}-Max">Max</label>
+              <input id="Filter-{{ id_prefix }}-Max" type="number" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}" min="0" placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}">
+            </div>
+        {% endcase %}
+      </details>
+    {% endfor %}
+  {% endif %}
+
+  {% if section.settings.enable_filtering and collection.filters != empty %}
+    <input type="hidden" name="sort_by" value="{{ sort_by }}">
+    <div class="filter-actions">
+      <button class="button button--accent" type="submit">Apply filters</button>
+      <a class="button button--outline" href="{{ clear_url }}?sort_by={{ sort_by | url_encode }}">Clear all</a>
+    </div>
+  {% endif %}
+</form>

@@ -1,0 +1,43 @@
+{% if card_collection != blank %}
+  {% liquid
+    assign card_image = card_collection.image
+    assign generated_asset = blank
+    if card_image == blank and card_collection.products.first != blank
+      assign card_image = card_collection.products.first.featured_image
+    endif
+    if card_image == blank
+      case card_collection.handle
+        when 'best-sellers', 'best-seller'
+          assign generated_asset = 'collection-best-sellers.jpg'
+        when 'new-arrivals', 'new-arrival'
+          assign generated_asset = 'collection-new-arrivals.jpg'
+        when 'sweatshirts', 'sweatshirt'
+          assign generated_asset = 'collection-sweatshirts.jpg'
+        when 't-shirts', 't-shirt'
+          assign generated_asset = 'collection-t-shirts.jpg'
+      endcase
+    endif
+  %}
+  <a class="collection-category-card" href="{{ card_collection.url }}">
+    <span class="collection-category-card__media">
+      {% if card_image != blank %}
+        {{ card_image
+          | image_url: width: 1200
+          | image_tag:
+            loading: 'lazy',
+            widths: '360, 540, 760, 1000, 1200',
+            sizes: '(min-width: 821px) 33vw, 100vw',
+            alt: card_image.alt
+        }}
+      {% elsif generated_asset != blank %}
+        <img src="{{ generated_asset | asset_url }}" width="1254" height="1254" loading="lazy" alt="{{ card_title | default: card_collection.title | escape }} collection">
+      {% else %}
+        <span class="collection-category-card__placeholder" aria-hidden="true"></span>
+      {% endif %}
+    </span>
+    <span class="collection-category-card__content">
+      <span>{{ card_title | default: card_collection.title | escape }}</span>
+      <span aria-hidden="true">→</span>
+    </span>
+  </a>
+{% endif %}
